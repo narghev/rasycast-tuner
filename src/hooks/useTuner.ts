@@ -1,19 +1,18 @@
 import { useCallback, useState, useRef } from "react";
 import { soxUtils } from "../utils/sox.utils";
-
 import { showToast, Toast } from "@raycast/api";
 import { frequencyToNote, analyzeSingleChunk } from "../utils/note.utils";
 import { sleep } from "../utils/general.utils";
+import { CLARITY_THRESHOLD } from "../constants";
 
-const constants = {
-  clarityThreshold: 0.3,
-  minGuitarFreq: 80,
-  maxGuitarFreq: 2000,
-};
+interface NoteInfo {
+  noteName: string;
+  cents: number;
+}
 
 export const useTuner = () => {
   const [isListening, setIsListening] = useState(false);
-  const [detectedNote, setDetectedNote] = useState("--");
+  const [detectedNote, setDetectedNote] = useState<NoteInfo | null>(null);
   const shouldContinueListeningRef = useRef(false);
 
   const startContinuousListening = useCallback(async () => {
@@ -40,23 +39,20 @@ export const useTuner = () => {
       try {
         const result = await analyzeSingleChunk();
 
-        if (
-          result &&
-          result.pitch > 0 &&
-          result.clarity > constants.clarityThreshold &&
-          result.pitch >= constants.minGuitarFreq &&
-          result.pitch <= constants.maxGuitarFreq
-        ) {
+        if (result && result.pitch > 0 && result.clarity > CLARITY_THRESHOLD) {
           const noteInfo = frequencyToNote(result.pitch);
-          setDetectedNote(`${noteInfo.note}`);
+          setDetectedNote({
+            noteName: noteInfo.note,
+            cents: noteInfo.cents,
+          });
         } else {
-          setDetectedNote("--");
+          setDetectedNote(null);
         }
 
         await sleep(500);
       } catch (error) {
         console.log(error);
-        setDetectedNote("Error");
+        setDetectedNote(null);
         break;
       }
     }
@@ -64,7 +60,7 @@ export const useTuner = () => {
 
   const stopContinuousListening = useCallback(() => {
     shouldContinueListeningRef.current = false;
-    setDetectedNote("--");
+    setDetectedNote(null);
     setIsListening(false);
 
     showToast({

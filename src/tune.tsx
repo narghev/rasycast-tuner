@@ -16,7 +16,7 @@ export default function Command() {
   return (
     <List searchBarPlaceholder="Guitar Tuner - Play a note to detect pitch">
       <List.Item
-        title={`Detected Note: ${detectedNote}`}
+        title={`Detected Note: ${detectedNote?.noteName} ${detectedNote?.cents ? `(${detectedNote.cents} cents)` : ""}`}
         subtitle={isListening ? "Listening for notes..." : "Ready to tune"}
         accessories={[
           {
