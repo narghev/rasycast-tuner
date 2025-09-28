@@ -6,12 +6,11 @@
   "icon": "extension-icon.png",
   "author": "narghev",
   "platforms": [
-    "macOS",
-    "Windows"
+    "macOS"
   ],
   "categories": [
     "Fun",
-    "Media"
+    "Other"
   ],
   "license": "MIT",
   "commands": [
