@@ -4,7 +4,7 @@ import { useTuner } from "./hooks/useTuner";
 import { centsToDisplayObject } from "./utils/display.utils";
 
 export default function Command() {
-  const { startContinuousListening, stopContinuousListening, detectedNote } = useTuner();
+  const { startContinuousListening, stopContinuousListening, detectedNote, error } = useTuner();
 
   useEffect(() => {
     startContinuousListening();
@@ -13,6 +13,18 @@ export default function Command() {
       stopContinuousListening();
     };
   }, [startContinuousListening, stopContinuousListening]);
+
+  if (error) {
+    return (
+      <List>
+        <List.Item
+          title={error.title}
+          subtitle={error.subTitle}
+          icon={{ source: Icon.ExclamationMark, tintColor: Color.Red }}
+        />
+      </List>
+    );
+  }
 
   if (detectedNote) {
     const { noteName, cents } = detectedNote;

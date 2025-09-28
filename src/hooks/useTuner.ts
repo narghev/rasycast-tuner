@@ -12,10 +12,16 @@ interface NoteInfo {
 
 export const useTuner = () => {
   const [detectedNote, setDetectedNote] = useState<NoteInfo | null>(null);
+  const [error, setError] = useState<{ title: string; subTitle: string } | null>(null);
   const shouldContinueListeningRef = useRef(false);
 
   const startContinuousListening = useCallback(async () => {
     if (!soxUtils.isSoxInstalled()) {
+      setError({
+        title: "Sox not installed",
+        subTitle: "Run: brew install sox",
+      });
+
       await showToast({
         style: Toast.Style.Failure,
         title: "Sox not installed",
@@ -67,6 +73,7 @@ export const useTuner = () => {
   }, []);
 
   return {
+    error,
     detectedNote,
     startContinuousListening,
     stopContinuousListening,
