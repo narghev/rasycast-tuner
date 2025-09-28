@@ -5,7 +5,7 @@ import { execSync } from "child_process";
 import { soxUtils } from "./sox.utils";
 
 import { PitchDetector } from "pitchy";
-import { A4_FREQ, NOTE_NAMES, SAMPLE_RATE } from "../constants";
+import { A4_FREQ, CENTS_THRESHOLD, NOTE_NAMES, SAMPLE_RATE } from "../constants";
 
 /**
  * Converts a frequency (Hz) to musical note information using equal temperament tuning
@@ -20,7 +20,7 @@ export function frequencyToNote(frequency: number): { note: string; octave: numb
   const A4 = 69;
   const midiNote = 12 * Math.log2(frequency / A4_FREQ) + A4;
   const noteNumber = Math.round(midiNote);
-  const cents = Math.round((midiNote - noteNumber) * 100);
+  const cents = Math.round((midiNote - noteNumber) * 2 * CENTS_THRESHOLD);
   const octave = Math.floor(noteNumber / 12) - 1;
   const note = NOTE_NAMES[noteNumber % 12];
 

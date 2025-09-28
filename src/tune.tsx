@@ -1,9 +1,10 @@
-import { List } from "@raycast/api";
+import { List, Icon, Color } from "@raycast/api";
 import { useEffect } from "react";
 import { useTuner } from "./hooks/useTuner";
+import { centsToDisplayObject } from "./utils/display.utils";
 
 export default function Command() {
-  const { startContinuousListening, stopContinuousListening, isListening, detectedNote } = useTuner();
+  const { startContinuousListening, stopContinuousListening, detectedNote } = useTuner();
 
   useEffect(() => {
     startContinuousListening();
@@ -13,17 +14,24 @@ export default function Command() {
     };
   }, [startContinuousListening, stopContinuousListening]);
 
+  if (detectedNote) {
+    const { noteName, cents } = detectedNote;
+
+    const displayObject = centsToDisplayObject(cents);
+
+    return (
+      <List>
+        <List.Item
+          title={noteName}
+          subtitle={`${cents > 0 ? "+" : ""}${cents} cents`}
+          icon={{ source: displayObject.icon, tintColor: displayObject.color }}
+        />
+      </List>
+    );
+  }
   return (
-    <List searchBarPlaceholder="Guitar Tuner - Play a note to detect pitch">
-      <List.Item
-        title={`Detected Note: ${detectedNote?.noteName} ${detectedNote?.cents ? `(${detectedNote.cents} cents)` : ""}`}
-        subtitle={isListening ? "Listening for notes..." : "Ready to tune"}
-        accessories={[
-          {
-            text: isListening ? "🎤 Listening" : "Ready",
-          },
-        ]}
-      />
+    <List>
+      <List.Item title="Play your instrument" icon={{ source: Icon.Heartbeat, tintColor: Color.Blue }} />
     </List>
   );
 }

@@ -11,7 +11,6 @@ interface NoteInfo {
 }
 
 export const useTuner = () => {
-  const [isListening, setIsListening] = useState(false);
   const [detectedNote, setDetectedNote] = useState<NoteInfo | null>(null);
   const shouldContinueListeningRef = useRef(false);
 
@@ -27,7 +26,6 @@ export const useTuner = () => {
     }
 
     shouldContinueListeningRef.current = true;
-    setIsListening(true);
 
     await showToast({
       style: Toast.Style.Success,
@@ -61,7 +59,6 @@ export const useTuner = () => {
   const stopContinuousListening = useCallback(() => {
     shouldContinueListeningRef.current = false;
     setDetectedNote(null);
-    setIsListening(false);
 
     showToast({
       style: Toast.Style.Success,
@@ -70,7 +67,6 @@ export const useTuner = () => {
   }, []);
 
   return {
-    isListening,
     detectedNote,
     startContinuousListening,
     stopContinuousListening,
