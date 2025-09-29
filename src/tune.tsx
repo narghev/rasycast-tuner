@@ -12,7 +12,7 @@ export default function Command() {
     return () => {
       stopContinuousListening();
     };
-  }, [startContinuousListening, stopContinuousListening]);
+  }, []);
 
   if (error) {
     return (
