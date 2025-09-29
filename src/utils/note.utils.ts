@@ -41,9 +41,9 @@ export function frequencyToNote(frequency: number): { note: string; octave: numb
  * @returns Object with pitch (Hz) and clarity (0-1), or null if error
  */
 export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: number } | null> => {
-    // Generate unique temporary file names to avoid conflicts
-    const tempFile = join(tmpdir(), `tuner_${Date.now()}.wav`);
-    const rawFile = join(tmpdir(), `tuner_raw_${Date.now()}.raw`);
+  // Generate unique temporary file names to avoid conflicts
+  const tempFile = join(tmpdir(), `tuner_${Date.now()}.wav`);
+  const rawFile = join(tmpdir(), `tuner_raw_${Date.now()}.raw`);
 
   try {
     // Validate sox is available before proceeding
@@ -67,9 +67,7 @@ export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: nu
     // -b 16: 16-bit samples
     // -c 1: Mono output
     // -t raw: Output as raw PCM data (no headers)
-    execSync(
-      `"${soxPath}" "${tempFile}" -r ${SAMPLE_RATE} -e signed-integer -b 16 -c 1 -t raw "${rawFile}"`,
-    );
+    execSync(`"${soxPath}" "${tempFile}" -r ${SAMPLE_RATE} -e signed-integer -b 16 -c 1 -t raw "${rawFile}"`);
 
     // Read the raw PCM file as binary data
     const audioBuffer = readFileSync(rawFile);
@@ -100,16 +98,16 @@ export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: nu
     console.log("Audio analysis error:", error);
     return null;
   } finally {
-      try {
-        unlinkSync(tempFile);
-      } catch {
-        // Ignore cleanup errors
-      }
+    try {
+      unlinkSync(tempFile);
+    } catch {
+      // Ignore cleanup errors
+    }
 
-      try {
-        unlinkSync(rawFile);
-      } catch {
-        // Ignore cleanup errors
-      }
+    try {
+      unlinkSync(rawFile);
+    } catch {
+      // Ignore cleanup errors
+    }
   }
 };
