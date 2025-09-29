@@ -17,17 +17,18 @@ export const useTuner = () => {
 
   const startContinuousListening = useCallback(async () => {
     if (!soxUtils.isSoxInstalled()) {
-      setError({
+      const errorMsg = {
         title: "Sox not installed",
         subTitle: "Run: brew install sox",
-      });
+      };
+
+      setError(errorMsg);
 
       await showToast({
         style: Toast.Style.Failure,
-        title: "Sox not installed",
-        message: "Run: brew install sox",
+        title: errorMsg.title,
+        message: errorMsg.subTitle,
       });
-
       return;
     }
 
@@ -55,9 +56,18 @@ export const useTuner = () => {
 
         await sleep(500);
       } catch (error) {
-        console.log(error);
+        console.log("Tuner error:", error);
+
+        // Show error to user but don't stop listening immediately
+        // This prevents one-off audio issues from breaking the tuner
+        await showToast({
+          style: Toast.Style.Failure,
+          title: "Audio processing error",
+          message: "Check microphone permissions",
+        });
+
         setDetectedNote(null);
-        break;
+        await sleep(1000); // Wait longer before retrying
       }
     }
   }, []);
