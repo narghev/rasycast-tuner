@@ -41,9 +41,16 @@ export function frequencyToNote(frequency: number): { note: string; octave: numb
  * @returns Object with pitch (Hz) and clarity (0-1), or null if error
  */
 export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: number } | null> => {
-  try {
     // Generate unique temporary file names to avoid conflicts
     const tempFile = join(tmpdir(), `tuner_${Date.now()}.wav`);
+    const rawFile = join(tmpdir(), `tuner_raw_${Date.now()}.raw`);
+
+  try {
+    // Validate sox is available before proceeding
+    const soxPath = soxUtils.getSoxPath();
+    if (!soxPath) {
+      throw new Error("Sox binary not found");
+    }
 
     // Sox command breakdown:
     // -d: Use default audio input device (microphone)
@@ -51,10 +58,7 @@ export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: nu
     // -r SAMPLE_RATE: Sample rate
     // -b 16: 16-bit depth - good balance of quality and performance
     // trim 0 0.5: Record for 0.5 seconds starting at position 0
-    execSync(`"${soxUtils.getSoxPath()}" -d -c 1 -r ${SAMPLE_RATE} -b 16 "${tempFile}" trim 0 0.5`);
-
-    // Convert WAV to raw PCM data that Pitchy can process
-    const rawFile = join(tmpdir(), `tuner_raw_${Date.now()}.raw`);
+    execSync(`"${soxPath}" -d -c 1 -r ${SAMPLE_RATE} -b 16 "${tempFile}" trim 0 0.5`);
 
     // Sox conversion command breakdown:
     // Input: WAV file from recording
@@ -64,7 +68,7 @@ export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: nu
     // -c 1: Mono output
     // -t raw: Output as raw PCM data (no headers)
     execSync(
-      `"${soxUtils.getSoxPath()}" "${tempFile}" -r ${SAMPLE_RATE} -e signed-integer -b 16 -c 1 -t raw "${rawFile}"`,
+      `"${soxPath}" "${tempFile}" -r ${SAMPLE_RATE} -e signed-integer -b 16 -c 1 -t raw "${rawFile}"`,
     );
 
     // Read the raw PCM file as binary data
@@ -91,15 +95,21 @@ export const analyzeSingleChunk = async (): Promise<{ pitch: number; clarity: nu
     // Returns [frequency_in_hz, clarity_confidence]
     const [pitch, clarity] = detector.findPitch(samples, SAMPLE_RATE);
 
-    // Remove temporary files to prevent disk space issues
-    unlinkSync(tempFile);
-    unlinkSync(rawFile);
-
-    // Return results for processing by caller
     return { pitch, clarity };
   } catch (error) {
-    // Log error for debugging but don't crash the application
-    console.log(error);
+    console.log("Audio analysis error:", error);
     return null;
+  } finally {
+      try {
+        unlinkSync(tempFile);
+      } catch {
+        // Ignore cleanup errors
+      }
+
+      try {
+        unlinkSync(rawFile);
+      } catch {
+        // Ignore cleanup errors
+      }
   }
 };
