@@ -1,10 +1,13 @@
-# Tuner
+# Guitar Tools
 
-A Raycast extension that allows you to tune your string instruments, primarily tested on guitars.
+A Raycast extension that provides tools that gutarist's use in separate applications.
 
 ## Features
 
 - Start a chromatic tuner directly from Raycast
+
+### Future Features
+- Guitar fretboard practice tool
 
 ## Requirements
 
@@ -13,7 +16,9 @@ A Raycast extension that allows you to tune your string instruments, primarily t
 
 ## Usage
 
-1. Open Raycast and search for "Tuner"
+### Tuner
+
+1. Open Raycast and search for "Chromatic Tuner"
 2. Run the command
 3. Play a note on your instrument and follow the icons to tune up or down
 
